@@ -17,9 +17,9 @@ def printBoard():
     print("  0  1  2  3  4  5  6  7")
     for idxLine,line in enumerate(board):
         for idxColumn,column in enumerate(line):
-            if idxColumn is 0:
+            if idxColumn == 0:
                 print(str(idxLine)+"|"+column, end = "|")
-            elif idxColumn is 7:
+            elif idxColumn == 7:
                 print(column+"|")
             else:
                 print(column, end = "|")
