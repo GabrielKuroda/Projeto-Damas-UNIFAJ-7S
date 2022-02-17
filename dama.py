@@ -64,6 +64,7 @@ def print_board():
                 
     print("--------------------------")
 
+
 def move_piece():
     origin_pos,target_pos = get_positions()
     
@@ -132,6 +133,7 @@ def verify_posibles_moves(posible_moves, target_pos):
     if cannot_continue:
         print("Não é possivel mover para essa posição")
     
+
 def get_posible_moves(origin_pos):
     global cannot_continue
 
@@ -164,11 +166,13 @@ def verify_position_ocuation(y,x):
     else:
         return None  
 
+
 def get_positions_index(input_position):
     y = switch_positions_y(input_position[0])
     x = switch_positions_x(input_position[1])
     
     return [int(y),int(x)]
+
 
 def get_positions_formated(positions):
     formated_positions = []
@@ -177,6 +181,7 @@ def get_positions_formated(positions):
         pos[1] = x
         formated_positions.append(str(pos[0])+str(pos[1]))
     return formated_positions
+
 
 def switch_positions_x(position):
     positions = {
@@ -191,6 +196,7 @@ def switch_positions_x(position):
     }
     return positions.get(position, 8)
     
+
 def switch_positions_y(position):
     positions = {
         '0': 0,
@@ -204,6 +210,7 @@ def switch_positions_y(position):
     }
     return positions.get(position, 8)
 
+
 def switch_positions_letters(position):
     positions = {
         0: 'A',
@@ -216,6 +223,7 @@ def switch_positions_letters(position):
         7: 'H',
     }
     return positions.get(position, 8)
+
 
 def main():
     player_otion = get_player_option()
