@@ -79,18 +79,22 @@ def get_positions():
     while cannot_continue:
         origin_pos = get_positions_index(input("Digite a posição da peça que deseja movimentar (Ex: 1A) : "))
         verify_chosen_positions(origin_pos)
-        verify_piece_owner(origin_pos)
-        posible_moves = get_posible_moves(origin_pos)
-        if posible_moves == None:
-            print("Essa peça não pode se mover agora!")
-            cannot_continue = True
+        if cannot_continue != True:
+            verify_piece_owner(origin_pos)
+        if cannot_continue != True:
+            posible_moves = get_posible_moves(origin_pos)
+            if posible_moves == None:
+                print("Essa peça não pode se mover agora!")
+                cannot_continue = True
             
     cannot_continue = True
-    
+    print("Possiveis movimentos -> ", posible_moves)
     while cannot_continue:    
         target_pos = get_positions_index(input("Digite a posição para onde deseja movimentar (Ex: 1A) : "))
         verify_chosen_positions(target_pos)
         verify_posibles_moves(posible_moves, target_pos)
+        
+    cannot_continue = True
         
     return origin_pos, target_pos
 
@@ -104,24 +108,25 @@ def verify_chosen_positions(positions):
         else:
             cannot_continue = True
             print("Erro! Verifique as posições!")
-            break;
+            break
 
 
 def verify_piece_owner(origin_pos):
     global cannot_continue
-    
-    y = origin_pos[0]
-    x = origin_pos[1]
-    
-    if player_option["piece_option"] == board[y][x]:
-        cannot_continue = False
-    else:
-        print("Essa peça não é sua!")
-        cannot_continue = True
+    if cannot_continue != True: 
+        y = origin_pos[0]
+        x = origin_pos[1]
+        
+        if player_option["piece_option"] == board[y][x]:
+            cannot_continue = False
+        else:
+            print("Essa peça não é sua!")
+            cannot_continue = True
 
 
 def verify_posibles_moves(posible_moves, target_pos):
     global cannot_continue
+    print(posible_moves)
     for pos in posible_moves:
         if pos == target_pos and pos != None:
             cannot_continue= False
@@ -138,9 +143,9 @@ def get_posible_moves(origin_pos):
     
     if player_option["piece_option"] == board[y][x]:
         if x == 0 and y > 0:
-            return verify_position_ocuation(y-1,x+1)
+            return [verify_position_ocuation(y-1,x+1)]
         elif x == 7 and y > 0:
-           return verify_position_ocuation(y-1,x-1)
+           return [verify_position_ocuation(y-1,x-1)]
         elif y > 0:
             pos_right = verify_position_ocuation(y-1,x+1)
             pos_left = verify_position_ocuation(y-1,x-1)
@@ -153,7 +158,7 @@ def get_posible_moves(origin_pos):
 
 def verify_position_ocuation(y,x):
     if board[y][x] == '  ':
-        return [[y,x]]
+        return [y,x]
     else:
         return None  
 
@@ -196,7 +201,8 @@ def main():
     print(player_otion)
     initial_potision(player_otion["piece_option"])
     print_board()
-    move_piece()
+    while True:
+        move_piece()
     
 
 main()
