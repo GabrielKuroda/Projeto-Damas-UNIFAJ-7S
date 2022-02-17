@@ -64,6 +64,7 @@ def print_board():
                 
     print("--------------------------")
 
+
 def move_piece():
     origin_pos,target_pos = get_positions()
     
@@ -79,16 +80,11 @@ def get_positions():
     while cannot_continue:
         origin_pos = get_positions_index(input("Digite a posição da peça que deseja movimentar (Ex: 1A) : "))
         verify_chosen_positions(origin_pos)
-        if cannot_continue != True:
-            verify_piece_owner(origin_pos)
-        if cannot_continue != True:
-            posible_moves = get_posible_moves(origin_pos)
-            if posible_moves == None:
-                print("Essa peça não pode se mover agora!")
-                cannot_continue = True
+        verify_piece_owner(origin_pos)
+        posible_moves = get_posible_moves(origin_pos)
             
     cannot_continue = True
-    print("Possiveis movimentos -> ", posible_moves)
+    print("Possiveis movimentos -> ", get_positions_formated(posible_moves))
     while cannot_continue:    
         target_pos = get_positions_index(input("Digite a posição para onde deseja movimentar (Ex: 1A) : "))
         verify_chosen_positions(target_pos)
@@ -137,23 +133,31 @@ def verify_posibles_moves(posible_moves, target_pos):
     if cannot_continue:
         print("Não é possivel mover para essa posição")
     
+
 def get_posible_moves(origin_pos):
-    y = origin_pos[0]
-    x = origin_pos[1]
-    
-    if player_option["piece_option"] == board[y][x]:
-        if x == 0 and y > 0:
-            return [verify_position_ocuation(y-1,x+1)]
-        elif x == 7 and y > 0:
-           return [verify_position_ocuation(y-1,x-1)]
-        elif y > 0:
-            pos_right = verify_position_ocuation(y-1,x+1)
-            pos_left = verify_position_ocuation(y-1,x-1)
-            if pos_right == None and pos_left == None:
+    global cannot_continue
+
+    if cannot_continue != True:
+        y = origin_pos[0]
+        x = origin_pos[1]
+        
+        if player_option["piece_option"] == board[y][x]:
+            if x == 0 and y > 0:
+                return [verify_position_ocuation(y-1,x+1)]
+            elif x == 7 and y > 0:
+                return [verify_position_ocuation(y-1,x-1)]
+            elif y > 0:
+                pos_right = verify_position_ocuation(y-1,x+1)
+                pos_left = verify_position_ocuation(y-1,x-1)
+                if pos_right == None and pos_left == None:
+                    print("Essa peça não pode se mover agora!")
+                    cannot_continue = True
+                    return None
+                return [pos_left,pos_right]
+            else:
+                print("Essa peça não pode se mover agora!")
+                cannot_continue = True
                 return None
-            return [pos_left,pos_right]
-        else:
-            return None
     
 
 def verify_position_ocuation(y,x):
@@ -162,12 +166,22 @@ def verify_position_ocuation(y,x):
     else:
         return None  
 
+
 def get_positions_index(input_position):
     y = switch_positions_y(input_position[0])
     x = switch_positions_x(input_position[1])
     
     return [int(y),int(x)]
-    
+
+
+def get_positions_formated(positions):
+    formated_positions = []
+    for pos in positions:
+        x = switch_positions_letters(pos[1])
+        pos[1] = x
+        formated_positions.append(str(pos[0])+str(pos[1]))
+    return formated_positions
+
 
 def switch_positions_x(position):
     positions = {
@@ -182,6 +196,7 @@ def switch_positions_x(position):
     }
     return positions.get(position, 8)
     
+
 def switch_positions_y(position):
     positions = {
         '0': 0,
@@ -194,7 +209,21 @@ def switch_positions_y(position):
         '7': 7,
     }
     return positions.get(position, 8)
-    
+
+
+def switch_positions_letters(position):
+    positions = {
+        0: 'A',
+        1: 'B',
+        2: 'C',
+        3: 'D',
+        4: 'E',
+        5: 'F',
+        6: 'G',
+        7: 'H',
+    }
+    return positions.get(position, 8)
+
 
 def main():
     player_otion = get_player_option()
