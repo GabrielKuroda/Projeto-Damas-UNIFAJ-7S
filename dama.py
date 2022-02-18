@@ -192,13 +192,12 @@ def get_positions_index(input_position):
 
 def get_positions_formated(positions):
     formated_positions = []
-    if None in positions:
-        return formated_positions
 
     for pos in positions:
-        x = switch_positions_letters(pos[1])
-        new_pos = [pos[0],x]
-        formated_positions.append(str(new_pos[0])+str(new_pos[1]))
+        if pos != None:
+            x = switch_positions_letters(pos[1])
+            new_pos = [pos[0],x]
+            formated_positions.append(str(new_pos[0])+str(new_pos[1]))
     return formated_positions
 
 
