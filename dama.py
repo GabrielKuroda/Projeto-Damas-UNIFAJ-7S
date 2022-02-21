@@ -1,5 +1,3 @@
-import enum
-from turtle import pos
 
 
 board = [['  ' for i in range(8)] for i in range(8)]
