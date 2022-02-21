@@ -1,10 +1,12 @@
-import enum
 
 
 board = [['  ' for i in range(8)] for i in range(8)]
 cannot_continue = True
 player_option={}
 player_playing = 1
+aux_right = None
+aux_left = None
+
 
 def initial_position(player_choice):
     other_option = "PB" if player_choice == "PP" else "PP"
@@ -50,6 +52,7 @@ def get_player_option():
 
 
 def print_board():
+    score_pb,score_pp = get_number_pieces_board()
     print("--------------------------")
     print("  A  B  C  D  E  F  G  H")
     
@@ -63,7 +66,23 @@ def print_board():
                 print(column, end = "|")
                 
     print("--------------------------")
+    print("Peças Pretas em Jogo: " + str(score_pb))
+    print("Peças Brancas em Jogo: " + str(score_pp))
+    print("--------------------------")
 
+
+def get_number_pieces_board():
+    score_pb = 0
+    score_pp = 0
+
+    for y in board:
+        for x in y:
+            if x == 'PB':
+                score_pb = score_pb+1
+            if x == 'PP':
+                score_pp = score_pp+1
+
+    return score_pb,score_pp
 
 def move_piece():
     origin_pos,target_pos = get_positions()
@@ -71,8 +90,16 @@ def move_piece():
     piece = board[origin_pos[0]][origin_pos[1]]
     board[origin_pos[0]][origin_pos[1]] = '  '
     board[target_pos[0]][target_pos[1]] = piece
+    eat_piece(origin_pos,target_pos)
     print_board()
 
+def eat_piece(origin_pos, target_pos):
+    pos_to_eat_y = int((target_pos[0] + origin_pos[0]) / 2)
+    pos_to_eat_x = int((target_pos[1] + origin_pos[1]) / 2)
+    if pos_to_eat_y != target_pos[0] and pos_to_eat_x != target_pos[1]:
+        aux_y = int(pos_to_eat_y)
+        aux_x = int(pos_to_eat_x)
+        board[aux_y][aux_x] = '  '
 
 def get_positions():
     global cannot_continue
@@ -122,7 +149,7 @@ def verify_piece_owner(origin_pos):
 
 def verify_possibles_moves(possible_moves, target_pos):
     global cannot_continue
-    print(possible_moves)
+
     for pos in possible_moves:
         if pos == target_pos and pos != None:
             cannot_continue= False
@@ -142,11 +169,11 @@ def get_possible_moves(origin_pos):
         x = origin_pos[1]
 
         if player_playing == 1:
-            pos_right = verify_position_ocupation(y-1,x+1)
-            pos_left = verify_position_ocupation(y-1,x-1)
+            pos_right = verify_position_ocupation(y-1,x+1,x)
+            pos_left = verify_position_ocupation(y-1,x-1,x)
         elif player_playing == 2:
-            pos_right = verify_position_ocupation(y+1,x+1)
-            pos_left = verify_position_ocupation(y+1,x-1)
+            pos_right = verify_position_ocupation(y+1,x+1,x)
+            pos_left = verify_position_ocupation(y+1,x-1,x)
 
         if x == 0 and y > 0:
             if pos_right == None:
@@ -165,6 +192,10 @@ def get_possible_moves(origin_pos):
                 print("Essa peça não pode se mover agora!")
                 cannot_continue = True
                 return None
+            if pos_right == None:
+                return [pos_left]
+            if pos_left == None:
+                return [pos_right]
             return [pos_left, pos_right]
         else:
             print("Essa peça não pode se mover agora!")
@@ -172,16 +203,55 @@ def get_possible_moves(origin_pos):
             return None
 
 
-def verify_position_ocupation(y,x):
-    if y > 7:
+def get_possible_ahead_moves(origin_pos):
+    global cannot_continue
+    global aux_right
+    global aux_left
+
+    if cannot_continue != True:
+        y = origin_pos[0]
+        x = origin_pos[1]
+
+        if player_playing == 1:
+            right = verify_position_ocupation(y-1,x+1,x)
+            left = verify_position_ocupation(y-1,x-1,x)
+        elif player_playing == 2:
+            right = verify_position_ocupation(y+1,x+1,x)
+            left = verify_position_ocupation(y+1,x-1,x)
+
+        aux_right = right
+        aux_left = left
+
+        if aux_right != None and aux_left != None:
+            return [aux_left,aux_right]
+        elif aux_right != None:
+            return aux_right
+        elif aux_left != None:
+            return aux_left
+
+
+def verify_position_ocupation(y,x,x_origin):
+    if y > 7 or y < 0:
         return None
-    if x > 7:
+    if x > 7 or x < 0:
         return None
     if board[y][x] == '  ':
         return [y,x]
+    elif board[y][x] != player_option["piece_option"]:
+        value = [y,x]
+        positions = get_possible_ahead_moves(value)
+        if positions != None:
+            if isinstance(positions[0], list):
+                for pos in positions:
+                    if pos[1] != x_origin:
+                        return pos
+            if positions[1] != x_origin:
+                return positions
+        else:
+            return None
+            
     else:
         return None
-
 
 
 def get_positions_index(input_position):
@@ -193,12 +263,13 @@ def get_positions_index(input_position):
 
 def get_positions_formated(positions):
     formated_positions = []
+    if None in positions:
+        return formated_positions
 
     for pos in positions:
-        if pos != None:
-            x = switch_positions_letters(pos[1])
-            new_pos = [pos[0],x]
-            formated_positions.append(str(new_pos[0])+str(new_pos[1]))
+        x = switch_positions_letters(pos[1])
+        new_pos = [pos[0],x]
+        formated_positions.append(str(new_pos[0])+str(new_pos[1]))
     return formated_positions
 
 
@@ -273,5 +344,6 @@ def main():
     
     if '2' in player_option["vs_option"]:
         start_shift()
+
 
 main()
