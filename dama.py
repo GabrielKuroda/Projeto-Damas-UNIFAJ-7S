@@ -156,8 +156,13 @@ def verify_piece_owner(origin_pos):
     if cannot_continue != True: 
         y = origin_pos[0]
         x = origin_pos[1]
+
+        piece = board[y][x]
+        piece_list = list(piece)
+            
+        p = "".join(piece_list[1])
         
-        if player_option["piece_option"] == board[y][x]:
+        if player_option["piece_option"] == board[y][x] or (p in board[y][x] and p in player_option["piece_option"][1]):
             cannot_continue = False
         else:
             print("Essa peça não é sua!")
