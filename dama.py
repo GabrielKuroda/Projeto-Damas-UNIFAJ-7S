@@ -85,11 +85,28 @@ def get_number_pieces_board():
     return score_pb,score_pp
 
 def move_piece():
+    global player_option
     origin_pos,target_pos = get_positions()
     
     piece = board[origin_pos[0]][origin_pos[1]]
     board[origin_pos[0]][origin_pos[1]] = '  '
     board[target_pos[0]][target_pos[1]] = piece
+
+    if player_playing == 1:
+        if player_option["piece_option"] in piece and target_pos[0] == 0:
+            piece_list = list(piece)
+            piece_list[0] = "D"
+            
+            p = "".join(piece_list)
+            board[target_pos[0]][target_pos[1]] = p
+    elif player_playing == 2:
+        if player_option["piece_option"] in piece and target_pos[0] == 7:
+            piece_list = list(piece)
+            piece_list[0] = "D"
+            
+            p = "".join(piece_list)
+            board[target_pos[0]][target_pos[1]] = p
+
     eat_piece(origin_pos,target_pos)
     print_board()
 
@@ -139,8 +156,13 @@ def verify_piece_owner(origin_pos):
     if cannot_continue != True: 
         y = origin_pos[0]
         x = origin_pos[1]
+
+        piece = board[y][x]
+        piece_list = list(piece)
+            
+        p = "".join(piece_list[1])
         
-        if player_option["piece_option"] == board[y][x]:
+        if player_option["piece_option"] == board[y][x] or (p in board[y][x] and p in player_option["piece_option"][1]):
             cannot_continue = False
         else:
             print("Essa peça não é sua!")
@@ -187,7 +209,7 @@ def get_possible_moves(origin_pos):
                 cannot_continue = True
                 return None
             return [pos_left]
-        elif y > 0:
+        elif y >= 0:
             if pos_right == None and pos_left == None:
                 print("Essa peça não pode se mover agora!")
                 cannot_continue = True
