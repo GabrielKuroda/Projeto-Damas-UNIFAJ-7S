@@ -5,6 +5,10 @@ player_playing = 1
 possibles_position = []
 mandatory_position = []
 pos_to_move = []
+passed_pos = []
+history_pos = []
+path_pos = []
+cannot_move_areas = []
 
 
 def initial_position(player_choice):
@@ -83,6 +87,7 @@ def get_number_pieces_board():
 
     return score_pb,score_pp
 
+
 def move_piece():
     global player_option
     origin_pos,target_pos = get_positions()
@@ -106,29 +111,77 @@ def move_piece():
             p = "".join(piece_list)
             board[target_pos[0]][target_pos[1]] = p
 
-    eat_piece(origin_pos,target_pos)
     print_board()
 
-def eat_piece(origin_pos, target_pos):
-    pos_to_eat_y = int((target_pos[0] + origin_pos[0]) / 2)
-    pos_to_eat_x = int((target_pos[1] + origin_pos[1]) / 2)
-    pos_to_eat = [pos_to_eat_y,pos_to_eat_x]
-    if player_playing == 1:
-        if pos_to_eat_y != target_pos[0] and pos_to_eat_x != target_pos[1]:
-            aux_y = int(pos_to_eat_y)
-            aux_x = int(pos_to_eat_x)
-            board[aux_y][aux_x] = '  '
-            eat_piece(pos_to_eat, target_pos)
-            eat_piece(origin_pos, pos_to_eat)
-            remove_from_mandatory(target_pos)
+
+def eat_piece(target_pos):
+    get_path(target_pos)
+    for pos in path_pos:
+        board[pos[0]][pos[1]] = '  '
+
+
+def get_path(target_pos):
+    global path_pos
+    global history_pos
+    
+    is_valid = True
+    for history in history_pos:
+        if history[1] == target_pos:
+            for pos in path_pos:
+                if pos == history[1]:
+                    is_valid = False
+                    history_pos.remove(history)
+            if is_valid:
+                path_pos.append(history[1])
+            get_path(history[0])
+
+
+def get_cannot_move_areas(origin):
+    global cannot_move_areas
+
+    cannot_move_areas.clear()
+
+    y = origin[0]
+    x = origin[1]
+
+    for idx_line,line in enumerate(board):
+        for idx_pos,pos in enumerate(line):
+            if idx_line % 2 == 0 and idx_pos % 2 != 0:
+                cannot_move_areas.append([idx_line,idx_pos])
+            elif idx_line % 2 != 0 and idx_pos % 2 == 0:
+                cannot_move_areas.append([idx_line,idx_pos])
+    
+    if x > 1:
+        cannot_move_areas.append([y,(x-2)])
+        if y > 4:
+            cannot_move_areas.append([(y-4),(x-2)])
+        if y < 4:
+            cannot_move_areas.append([(y+4),(x-2)])
+    if x < 6:
+        cannot_move_areas.append([y,(x+2)])
+        if y > 4:
+            cannot_move_areas.append([(y-4),(x+2)])
+        if y < 4:
+            cannot_move_areas.append([(y+4),(x+2)])
+    if y > 1:
+        cannot_move_areas.append([(y-2),x])
+        if x > 4:
+            cannot_move_areas.append([(y-2),(x-4)])
+        if x < 4:
+            cannot_move_areas.append([(y-2),(x+4)])
+    if y < 6:
+        cannot_move_areas.append([(y+2),x])
+        if x > 4:
+            cannot_move_areas.append([(y+2),(x-4)])
+        if x < 4:
+            cannot_move_areas.append([(y+2),(x+4)])
+
+
+def is_possible_move(pos):
+    if pos in cannot_move_areas:
+        return False
     else:
-        if pos_to_eat_y != origin_pos[0] and pos_to_eat_x != origin_pos[1]:
-            aux_y = int(pos_to_eat_y)
-            aux_x = int(pos_to_eat_x)
-            board[aux_y][aux_x] = '  '
-            eat_piece(pos_to_eat, target_pos)
-            eat_piece(origin_pos, pos_to_eat)
-            remove_from_mandatory(target_pos)
+        return True
 
 
 def remove_from_mandatory(target):
@@ -150,23 +203,23 @@ def get_positions():
         verify_chosen_positions(origin_pos)
         verify_piece_owner(origin_pos)
         pos_to_move = origin_pos
+        get_cannot_move_areas(origin_pos)
         get_moves(origin_pos)
+        
             
     cannot_continue = True
-    print(mandatory_position)
     print("Possiveis movimentos -> ", get_positions_formated(possibles_position))
     while cannot_continue:    
         target_pos = get_positions_index(input("Digite a posição para onde deseja movimentar (Ex: 1A) : ").upper())
         verify_chosen_positions(target_pos)
         verify_possibles_moves(target_pos)
-    
-    eat_piece(origin_pos,target_pos)
+
+    eat_piece(target_pos)
 
     if did_not_choose_mandatory(target_pos):
         print("Você Perdeu")
         
     cannot_continue = True
-        
     return origin_pos, target_pos
 
 
@@ -226,9 +279,16 @@ def verify_possibles_moves(target_pos):
 def get_moves(origin_pos):
     global possibles_position
     global mandatory_position
+    global passed_pos
+    global history_pos
+    global path_pos
 
     possibles_position.clear()
     mandatory_position.clear()
+    passed_pos.clear()
+    history_pos.clear()
+    path_pos.clear()
+
     get_possible_moves(origin_pos)
 
 
@@ -246,21 +306,36 @@ def get_possible_moves(origin_pos):
             pos_right = verify_position_in_board(y+1,x+1)
             pos_left = verify_position_in_board(y+1,x-1)
 
-        if pos_left != None and board[pos_left[0]][pos_left[1]] == '  ' and board[y][x] != '  ':
-            print("Left -> " + str(pos_left))
-            possibles_position.append(pos_left)
+        if pos_left != None and verify_pos(pos_left) and board[y][x] != '  ':
+            if did_not_passed(pos_left):
+                possibles_position.append(pos_left)
+                passed_pos.append(pos_left)
         elif pos_left != None and board[pos_left[0]][pos_left[1]] != player_option["piece_option"]  and board[pos_left[0]][pos_left[1]] != '  ':
-            get_mandatory_moves(pos_left)
+            if did_not_passed(pos_left):
+                passed_pos.append(pos_left)
+                history_pos.append([origin_pos,pos_left])
+                get_mandatory_moves(pos_left)
 
-        if pos_right != None and board[pos_right[0]][pos_right[1]] == '  ' and board[y][x] != '  ':
-            print("Right -> " + str(pos_right))
-            possibles_position.append(pos_right)
+        if pos_right != None and verify_pos(pos_right) and board[y][x] != '  ':
+            if did_not_passed(pos_right):
+                possibles_position.append(pos_right)
+                passed_pos.append(pos_right)
         elif pos_right != None and board[pos_right[0]][pos_right[1]] != player_option["piece_option"] and board[pos_right[0]][pos_right[1]] != '  ':
-            get_mandatory_moves(pos_right)
-
+            if did_not_passed(pos_right):
+                passed_pos.append(pos_right)
+                history_pos.append([origin_pos,pos_right])
+                get_mandatory_moves(pos_right)
+ 
         if possibles_position == []:
             print("A peça escolhida não pode se mover agora!")
             cannot_continue = True
+
+
+def did_not_passed(pos_to_check):
+    for pos in passed_pos:
+        if pos == pos_to_check:
+            return False
+    return True
 
 
 def verify_pos(pos):
@@ -273,28 +348,84 @@ def get_mandatory_moves(pos):
     global cannot_continue
     global mandatory_position
     global possibles_position
+    global history_pos
 
-    y = pos[0]
-    x = pos[1]
+    if pos != None:
+        y = pos[0]
+        x = pos[1]
 
-    if player_playing == 1:
-        right = verify_position_in_board(y-1,x+1)
-        left = verify_position_in_board(y-1,x-1)
-    elif player_playing == 2:
-        right = verify_position_in_board(y+1,x+1)
-        left = verify_position_in_board(y+1,x-1)
+        if player_playing == 1:
+            right = verify_position_in_board(y-1,x+1)
+            left = verify_position_in_board(y-1,x-1)
+            right_back = verify_position_in_board(y+1,x+1)
+            left_back = verify_position_in_board(y+1,x-1)
+        elif player_playing == 2:
+            right = verify_position_in_board(y+1,x+1)
+            left = verify_position_in_board(y+1,x-1)
+            right_back = verify_position_in_board(y-1,x+1)
+            left_back = verify_position_in_board(y-1,x-1)
 
-    if left != None and left[1] != pos_to_move[1]:
-        if verify_pos(left):
-            mandatory_position.append(left)
-            possibles_position.append(left)
-            get_possible_moves(left)
+        if basic_pos_verify(left,x,y):
+            if verify_pos(left) and board[y][x] != '  ' and check_phb_pos(left):
+                mandatory_position.append(left)
+                possibles_position.append(left)
+                passed_pos.append(left)
+                history_pos.append([pos,left])
+                get_mandatory_moves(left)
+            elif board[left[0]][left[1]] != '  ' and board[left[0]][left[1]] != player_option["piece_option"]:
+                passed_pos.append(left)
+                history_pos.append([pos,left])
+                get_mandatory_moves(left)
+                
 
-    if right != None and right[1] != pos_to_move[1]:
-        if verify_pos(right):
-            mandatory_position.append(right)
-            possibles_position.append(right)
-            get_possible_moves(right)
+        if basic_pos_verify(right,x,y):
+            if verify_pos(right) and board[y][x] != '  ' and check_phb_pos(right):
+                mandatory_position.append(right)
+                possibles_position.append(right)
+                passed_pos.append(right)
+                history_pos.append([pos,right])
+                get_mandatory_moves(right)
+            elif board[right[0]][right[1]] != '  ' and board[right[0]][right[1]] != player_option["piece_option"]:
+                passed_pos.append(right)
+                history_pos.append([pos,right])
+                get_mandatory_moves(right)
+                
+        if basic_pos_verify(right_back,x,y):
+            if board[right_back[0]][right_back[1]] != player_option["piece_option"] and board[right_back[0]][right_back[1]] != '  ': 
+                history_pos.append([pos,right_back])
+                get_mandatory_moves(right_back)
+            elif board[right_back[0]][right_back[1]] != player_option["piece_option"] and check_phb_pos(right_back):
+                mandatory_position.append(right_back)
+                possibles_position.append(right_back)
+                passed_pos.append(right_back)
+                history_pos.append([pos,right_back])
+                get_mandatory_moves(right_back)
+
+        if basic_pos_verify(left_back,x,y):
+            if board[left_back[0]][left_back[1]] != player_option["piece_option"] and board[left_back[0]][left_back[1]] != '  ' :
+                history_pos.append([pos,left_back])
+                get_mandatory_moves(left_back)
+            elif board[left_back[0]][left_back[1]] != player_option["piece_option"] and check_phb_pos(left_back):
+                mandatory_position.append(left_back)
+                possibles_position.append(left_back)
+                passed_pos.append(left_back)
+                history_pos.append([pos,left_back])
+                get_mandatory_moves(left_back)
+            
+
+def basic_pos_verify(pos,x,y):
+    if pos != None and board[pos[0]][pos[1]] != board[y][x] and did_not_passed(pos) and is_possible_move(pos):
+        return True
+    else:
+        return False
+
+def check_phb_pos(pos):
+    if pos[0] == pos_to_move[0] and pos[1] != (pos_to_move[1]+4) and pos_to_move[1] <=3:
+        return False
+    elif pos[0] == pos_to_move[0] and pos[1] != (pos_to_move[1]-4) and pos_to_move[1] >= 4:
+        return False
+    else:
+        return True
 
 
 def verify_position_in_board(y,x):
@@ -391,7 +522,14 @@ def start_shift():
 def main():
     player_otion = get_player_option()
     print(player_otion)
-    initial_position(player_otion["piece_option"])
+    #initial_position(player_otion["piece_option"])
+    board[4][6] = 'PB'
+    board[3][5] = 'PP'
+    board[3][3] = 'PP'
+    board[3][1] = 'PP'
+    board[1][5] = 'PP'
+    board[1][3] = 'PP'
+    board[1][1] = 'PP' 
     print_board()
     
     if '2' in player_option["vs_option"]:
