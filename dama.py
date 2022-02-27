@@ -205,8 +205,7 @@ def get_positions():
         pos_to_move = origin_pos
         get_cannot_move_areas(origin_pos)
         get_moves(origin_pos)
-        
-    print(history_pos)        
+      
     cannot_continue = True
     print("Possiveis movimentos -> ", get_positions_formated(possibles_position))
     while cannot_continue:    
@@ -538,14 +537,7 @@ def start_shift():
 def main():
     player_otion = get_player_option()
     print(player_otion)
-    #initial_position(player_otion["piece_option"])
-    board[4][6] = 'PB'
-    board[3][5] = 'PP'
-    board[3][3] = 'PP'
-    board[3][1] = 'PP'
-    board[1][5] = 'PP'
-    board[1][3] = 'PP'
-    board[1][1] = 'PP' 
+    initial_position(player_otion["piece_option"])
     print_board()
     
     if '2' in player_option["vs_option"]:
