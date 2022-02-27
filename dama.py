@@ -206,7 +206,7 @@ def get_positions():
         get_cannot_move_areas(origin_pos)
         get_moves(origin_pos)
         
-            
+    print(history_pos)        
     cannot_continue = True
     print("Possiveis movimentos -> ", get_positions_formated(possibles_position))
     while cannot_continue:    
@@ -366,51 +366,55 @@ def get_mandatory_moves(pos):
             left_back = verify_position_in_board(y-1,x-1)
 
         if basic_pos_verify(left,x,y):
-            if verify_pos(left) and board[y][x] != '  ' and check_phb_pos(left):
-                mandatory_position.append(left)
-                possibles_position.append(left)
-                passed_pos.append(left)
-                history_pos.append([pos,left])
-                get_mandatory_moves(left)
-            elif board[left[0]][left[1]] != '  ' and board[left[0]][left[1]] != player_option["piece_option"]:
-                passed_pos.append(left)
-                history_pos.append([pos,left])
-                get_mandatory_moves(left)
+            if verify_side(left,pos):
+                if verify_pos(left) and board[y][x] != '  ' and check_phb_pos(left):
+                    mandatory_position.append(left)
+                    possibles_position.append(left)
+                    passed_pos.append(left)
+                    history_pos.append([pos,left])
+                    get_mandatory_moves(left)
+                elif board[left[0]][left[1]] != '  ' and board[left[0]][left[1]] != player_option["piece_option"]:
+                    passed_pos.append(left)
+                    history_pos.append([pos,left])
+                    get_mandatory_moves(left)
                 
 
         if basic_pos_verify(right,x,y):
-            if verify_pos(right) and board[y][x] != '  ' and check_phb_pos(right):
-                mandatory_position.append(right)
-                possibles_position.append(right)
-                passed_pos.append(right)
-                history_pos.append([pos,right])
-                get_mandatory_moves(right)
-            elif board[right[0]][right[1]] != '  ' and board[right[0]][right[1]] != player_option["piece_option"]:
-                passed_pos.append(right)
-                history_pos.append([pos,right])
-                get_mandatory_moves(right)
+            if verify_side(right,pos):
+                if verify_pos(right) and board[y][x] != '  ' and check_phb_pos(right):
+                    mandatory_position.append(right)
+                    possibles_position.append(right)
+                    passed_pos.append(right)
+                    history_pos.append([pos,right])
+                    get_mandatory_moves(right)
+                elif board[right[0]][right[1]] != '  ' and board[right[0]][right[1]] != player_option["piece_option"]:
+                    passed_pos.append(right)
+                    history_pos.append([pos,right])
+                    get_mandatory_moves(right)
                 
         if basic_pos_verify(right_back,x,y):
-            if board[right_back[0]][right_back[1]] != player_option["piece_option"] and board[right_back[0]][right_back[1]] != '  ': 
-                history_pos.append([pos,right_back])
-                get_mandatory_moves(right_back)
-            elif board[right_back[0]][right_back[1]] != player_option["piece_option"] and check_phb_pos(right_back):
-                mandatory_position.append(right_back)
-                possibles_position.append(right_back)
-                passed_pos.append(right_back)
-                history_pos.append([pos,right_back])
-                get_mandatory_moves(right_back)
+            if verify_side(right_back,pos):
+                if board[right_back[0]][right_back[1]] != player_option["piece_option"] and board[right_back[0]][right_back[1]] != '  ': 
+                    history_pos.append([pos,right_back])
+                    get_mandatory_moves(right_back)
+                elif board[right_back[0]][right_back[1]] != player_option["piece_option"] and check_phb_pos(right_back):
+                    mandatory_position.append(right_back)
+                    possibles_position.append(right_back)
+                    passed_pos.append(right_back)
+                    history_pos.append([pos,right_back])
+                    get_mandatory_moves(right_back)
 
         if basic_pos_verify(left_back,x,y):
-            if board[left_back[0]][left_back[1]] != player_option["piece_option"] and board[left_back[0]][left_back[1]] != '  ' :
-                history_pos.append([pos,left_back])
-                get_mandatory_moves(left_back)
-            elif board[left_back[0]][left_back[1]] != player_option["piece_option"] and check_phb_pos(left_back):
-                mandatory_position.append(left_back)
-                possibles_position.append(left_back)
-                passed_pos.append(left_back)
-                history_pos.append([pos,left_back])
-                get_mandatory_moves(left_back)
+            if verify_side(left_back,pos):
+                if board[left_back[0]][left_back[1]] != player_option["piece_option"] and board[left_back[0]][left_back[1]] != '  ' :
+                    history_pos.append([pos,left_back])
+                    get_mandatory_moves(left_back)
+                elif board[left_back[0]][left_back[1]] != player_option["piece_option"] and check_phb_pos(left_back):
+                    mandatory_position.append(left_back)
+                    possibles_position.append(left_back)
+                    passed_pos.append(left_back)
+                    history_pos.append([pos,left_back])
+                    get_mandatory_moves(left_back)
             
 
 def basic_pos_verify(pos,x,y):
@@ -425,6 +429,18 @@ def check_phb_pos(pos):
     elif pos[0] == pos_to_move[0] and pos[1] != (pos_to_move[1]-4) and pos_to_move[1] >= 4:
         return False
     else:
+        return True
+
+
+def verify_side(pos, origin):  
+    
+    for prev in history_pos:
+        if prev[1] == origin:
+            previous_pos = prev[0]
+    if (pos[0] == previous_pos[0] or pos[1] == previous_pos[1]) and board[pos[0]][pos[1]] == '  ':
+        return False
+    else:
+        
         return True
 
 
