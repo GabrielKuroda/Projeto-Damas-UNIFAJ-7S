@@ -12,6 +12,9 @@ passed_history = {}
 path_to_eat= []
 will_eat = False
 end_path = False
+number_pos_origin_pos = {}
+madatory_pos_origin_pos = []
+
 
 def initial_position(player_choice):
     other_option = "PB" if player_choice == "PP" else "PP"
@@ -203,10 +206,51 @@ def remove_from_mandatory(target):
         mandatory_position.remove(target)
 
 
+def get_all_mandatory():
+    global possibles_position
+    global mandatory_position
+    global number_pos
+    global jump_pieces
+    global number_pos_origin_pos
+    global madatory_pos_origin_pos
+
+    number_pos_origin_pos.clear()
+    madatory_pos_origin_pos.clear()
+    
+    max_per_pos = 0
+    for idx_y,y in enumerate(board):
+        for idx_x,x in enumerate(y):
+            if board[idx_y][idx_x] == player_option["piece_option"]:
+                possibles_position.clear()
+                mandatory_position.clear()
+                number_pos.clear()
+                jump_pieces.clear()
+                
+                get_mandatory_moves([idx_y,idx_x],True)
+
+                for idx in number_pos:
+                    if number_pos[idx] > max_per_pos:
+                        max_per_pos = number_pos[idx]
+
+                number_pos_origin_pos[(idx_y,idx_x)] = max_per_pos
+                max_per_pos = 0
+    
+    max = 0
+    for idx in number_pos_origin_pos:
+        if number_pos_origin_pos[idx] > max:
+            max = number_pos_origin_pos[idx]
+    
+    for idx2 in number_pos_origin_pos:
+        if number_pos_origin_pos[idx2] == max:
+            madatory_pos_origin_pos.append([idx2[0], idx2[1]])
+            
+
+
 def get_positions():
     global cannot_continue
     global pos_to_move
     
+    get_all_mandatory()
     while cannot_continue:
         origin_pos = get_positions_index(input("Digite a posição da peça que deseja movimentar (Ex: 1A) : ").upper())
         verify_origin_positions(origin_pos)
@@ -230,8 +274,8 @@ def get_positions():
 def verify_origin_positions(position):
     global cannot_continue
 
-    if all_mandatory != {}:
-        if (position[0],position[1]) in all_mandatory:
+    if madatory_pos_origin_pos != {}:
+        if position in madatory_pos_origin_pos:
             cannot_continue = False
         else:
             print("Há peças obrigatórias para comer!")
@@ -304,7 +348,7 @@ def get_moves(origin_pos):
     number_pos.clear()
 
     get_possible_moves(origin_pos)
-    get_mandatory_moves(origin_pos)
+    get_mandatory_moves(origin_pos,False)
 
 
 def get_possible_moves(origin_pos):
@@ -329,14 +373,14 @@ def verify_pos(pos):
     return False
 
 
-def get_mandatory_moves(pos):
+def get_mandatory_moves(pos, get_all):
     global cannot_continue
     global mandatory_position
     global possibles_position
     global number_pos
     global jump_pieces
     global passed_history
-    
+
     possible_pos = [player_option["piece_option"], 'D'+player_option["piece_option"][1], '  ']
 
     pos_left = get_left_pos(pos)
@@ -346,9 +390,8 @@ def get_mandatory_moves(pos):
 
     if pos_left != None and board[pos_left[0]][pos_left[1]] not in possible_pos:
         next_left = get_left_pos(pos_left)
-        if board[next_left[0]][next_left[1]] == '  ' and pos_left not in jump_pieces:
-            jump_pieces.append(pos_left)
-            if pos != pos_to_move:
+        if next_left != None and board[next_left[0]][next_left[1]] == '  ' and pos_left not in jump_pieces:
+            if pos != pos_to_move and (pos[0],pos[1]) in number_pos:
                 number_pos[(next_left[0],next_left[1])] = number_pos[(pos[0],pos[1])] + 1
             else:
                 number_pos[(next_left[0],next_left[1])] = 1
@@ -360,15 +403,15 @@ def get_mandatory_moves(pos):
             else:
                 passed_history[(pos[0],pos[1])] = [next_left]
 
-            get_mandatory_moves(next_left)
+            get_mandatory_moves(next_left,False)
     elif pos_left != None and board[pos_left[0]][pos_left[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_left not in possibles_position:
         mandatory_position.append(pos_left)
 
     if pos_right != None and board[pos_right[0]][pos_right[1]] not in possible_pos:
         next_right = get_right_pos(pos_right)
-        if board[next_right[0]][next_right[1]] == '  ' and pos_right not in jump_pieces:
+        if next_right != None and board[next_right[0]][next_right[1]] == '  ' and pos_right not in jump_pieces:
             jump_pieces.append(pos_right)
-            if pos != pos_to_move:
+            if pos != pos_to_move and (pos[0],pos[1]) in number_pos:
                 number_pos[(next_right[0],next_right[1])] = number_pos[(pos[0],pos[1])] + 1
             else:
                 number_pos[(next_right[0],next_right[1])] = 1
@@ -380,15 +423,15 @@ def get_mandatory_moves(pos):
             else:
                 passed_history[(pos[0],pos[1])] = [next_right]
 
-            get_mandatory_moves(next_right)
+            get_mandatory_moves(next_right,False)
     elif pos_right != None and board[pos_right[0]][pos_right[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_right not in possibles_position:
         mandatory_position.append(pos_right)
 
     if pos_left_back != None and board[pos_left_back[0]][pos_left_back[1]] not in possible_pos and board[pos_left_back[0]][pos_left_back[1]] not in mandatory_position:
         next_left_back = get_left_back_pos(pos_left_back)
-        if board[next_left_back[0]][next_left_back[1]] == '  ' and pos_left_back not in jump_pieces:
+        if next_left_back != None and board[next_left_back[0]][next_left_back[1]] == '  ' and pos_left_back not in jump_pieces:
             jump_pieces.append(pos_left_back)
-            if pos != pos_to_move:
+            if pos != pos_to_move and (pos[0],pos[1]) in number_pos:
                 number_pos[(next_left_back[0],next_left_back[1])] = number_pos[(pos[0],pos[1])] + 1
             else:
                 number_pos[(next_left_back[0],next_left_back[1])] = 1
@@ -400,13 +443,13 @@ def get_mandatory_moves(pos):
             else:
                 passed_history[(pos[0],pos[1])] = [next_left_back]
 
-            get_mandatory_moves(next_left_back)
+            get_mandatory_moves(next_left_back,False)
     
     if pos_right_back != None and board[pos_right_back[0]][pos_right_back[1]] not in possible_pos :
         next_right_back = get_right_back_pos(pos_right_back)
-        if board[next_right_back[0]][next_right_back[1]] == '  ' and pos_right_back not in jump_pieces:
+        if next_right_back != None and board[next_right_back[0]][next_right_back[1]] == '  ' and pos_right_back not in jump_pieces:
             jump_pieces.append(pos_right_back)
-            if pos != pos_to_move:
+            if pos != pos_to_move and (pos[0],pos[1]) in number_pos:
                 number_pos[(next_right_back[0],next_right_back[1])] = number_pos[(pos[0],pos[1])] + 1
             else:
                 number_pos[(next_right_back[0],next_right_back[1])] = 1
@@ -418,7 +461,7 @@ def get_mandatory_moves(pos):
             else:
                 passed_history[(pos[0],pos[1])] = [next_right_back]
 
-            get_mandatory_moves(next_right_back)
+            get_mandatory_moves(next_right_back,False)
             
 
 def get_right_pos(pos):
