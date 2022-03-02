@@ -226,7 +226,7 @@ def get_all_mandatory():
                 number_pos.clear()
                 jump_pieces.clear()
                 
-                get_mandatory_moves([idx_y,idx_x],True)
+                get_mandatory_moves([idx_y,idx_x])
 
                 for idx in number_pos:
                     if number_pos[idx] > max_per_pos:
@@ -348,7 +348,7 @@ def get_moves(origin_pos):
     number_pos.clear()
 
     get_possible_moves(origin_pos)
-    get_mandatory_moves(origin_pos,False)
+    get_mandatory_moves(origin_pos)
 
 
 def get_possible_moves(origin_pos):
@@ -373,7 +373,7 @@ def verify_pos(pos):
     return False
 
 
-def get_mandatory_moves(pos, get_all):
+def get_mandatory_moves(pos):
     global cannot_continue
     global mandatory_position
     global possibles_position
@@ -403,7 +403,7 @@ def get_mandatory_moves(pos, get_all):
             else:
                 passed_history[(pos[0],pos[1])] = [next_left]
 
-            get_mandatory_moves(next_left,False)
+            get_mandatory_moves(next_left)
     elif pos_left != None and board[pos_left[0]][pos_left[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_left not in possibles_position:
         mandatory_position.append(pos_left)
 
@@ -423,7 +423,7 @@ def get_mandatory_moves(pos, get_all):
             else:
                 passed_history[(pos[0],pos[1])] = [next_right]
 
-            get_mandatory_moves(next_right,False)
+            get_mandatory_moves(next_right)
     elif pos_right != None and board[pos_right[0]][pos_right[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_right not in possibles_position:
         mandatory_position.append(pos_right)
 
@@ -443,7 +443,7 @@ def get_mandatory_moves(pos, get_all):
             else:
                 passed_history[(pos[0],pos[1])] = [next_left_back]
 
-            get_mandatory_moves(next_left_back,False)
+            get_mandatory_moves(next_left_back)
     
     if pos_right_back != None and board[pos_right_back[0]][pos_right_back[1]] not in possible_pos :
         next_right_back = get_right_back_pos(pos_right_back)
@@ -461,7 +461,7 @@ def get_mandatory_moves(pos, get_all):
             else:
                 passed_history[(pos[0],pos[1])] = [next_right_back]
 
-            get_mandatory_moves(next_right_back,False)
+            get_mandatory_moves(next_right_back)
             
 
 def get_right_pos(pos):
