@@ -85,9 +85,9 @@ def get_number_pieces_board():
 
     for y in board:
         for x in y:
-            if x == 'PB':
+            if x == 'PB' or x == 'DB':
                 score_pb = score_pb+1
-            if x == 'PP':
+            if x == 'PP' or x == 'DP':
                 score_pp = score_pp+1
 
     return score_pb,score_pp
@@ -115,7 +115,7 @@ def eat_piece():
 
         y_to_eat = int((pos1[0] + pos2[0])/2)
         x_to_eat = int((pos1[1] + pos2[1])/2)
-
+        
         board[y_to_eat][x_to_eat] = '  '
         
         path_to_eat.remove(pos1)
@@ -127,7 +127,6 @@ def get_path(target_pos):
     global passed_history
     global path_to_eat
     global end_path
-
     found_idx = None
     for idx in dict(reversed(list(passed_history.items()))):
         for idx_pos,pos in enumerate(passed_history[idx]):
@@ -213,9 +212,11 @@ def get_all_mandatory():
     global jump_pieces
     global number_pos_origin_pos
     global madatory_pos_origin_pos
+    global pos_to_move
 
     number_pos_origin_pos.clear()
     madatory_pos_origin_pos.clear()
+    jump_pieces.clear()
     
     max_per_pos = 0
     for idx_y,y in enumerate(board):
@@ -225,6 +226,7 @@ def get_all_mandatory():
                 mandatory_position.clear()
                 number_pos.clear()
                 jump_pieces.clear()
+                pos_to_move = [idx_y,idx_x]
                 
                 get_mandatory_moves([idx_y,idx_x])
 
@@ -243,6 +245,10 @@ def get_all_mandatory():
     for idx2 in number_pos_origin_pos:
         if number_pos_origin_pos[idx2] == max:
             madatory_pos_origin_pos.append([idx2[0], idx2[1]])
+
+    number_pos_origin_pos.clear()
+    madatory_pos_origin_pos.clear()
+    jump_pieces.clear()
             
 
 
@@ -274,7 +280,7 @@ def get_positions():
 def verify_origin_positions(position):
     global cannot_continue
 
-    if madatory_pos_origin_pos != {}:
+    if madatory_pos_origin_pos != []:
         if position in madatory_pos_origin_pos:
             cannot_continue = False
         else:
@@ -359,12 +365,74 @@ def get_possible_moves(origin_pos):
 
         pos_left = get_left_pos(origin_pos)
         pos_right = get_right_pos(origin_pos)
+        pos_left_back = get_left_back_pos(origin_pos)
+        pos_right_back = get_right_back_pos(origin_pos)
         
         if pos_left != None and verify_pos(pos_left):
             possibles_position.append(pos_left)
+            if board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+                next_left = get_left_pos(pos_left)
+                if next_left != None:
+                    get_possible_pos_left(next_left)
 
         if pos_right != None and verify_pos(pos_right):
             possibles_position.append(pos_right)
+            if board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+                next_right = get_right_pos(pos_right)
+                if next_right != None:
+                    get_possible_pos_right(next_right)
+
+        if pos_left_back != None and verify_pos(pos_left_back) and board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+            possibles_position.append(pos_left_back)
+            next_left_back = get_left_back_pos(pos_left_back)
+            if next_left_back != None:
+                get_possible_pos_left_back(next_left_back)
+
+        if pos_right_back != None and verify_pos(pos_right_back) and board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+            possibles_position.append(pos_right_back)
+            next_right_back = get_right_back_pos(pos_right_back)
+            if next_right_back != None:
+                get_possible_pos_right_back(next_right_back)
+        
+
+def get_possible_pos_left(pos_left):
+    global possibles_position
+    if pos_left != None and verify_pos(pos_left):
+            possibles_position.append(pos_left)
+            if board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+                next_left = get_left_pos(pos_left)
+                if next_left != None:
+                    get_possible_pos_left(next_left)
+
+
+def get_possible_pos_right(pos_right):
+    global possibles_position
+    if pos_right != None and verify_pos(pos_right):
+            possibles_position.append(pos_right)
+            if board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+                next_right = get_right_pos(pos_right)
+                if next_right != None:
+                    get_possible_pos_right(next_right)
+
+
+def get_possible_pos_left_back(pos_left_back):
+    global possibles_position
+    if pos_left_back != None and verify_pos(pos_left_back):
+            possibles_position.append(pos_left_back)
+            if board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+                next_left_back = get_left_back_pos(pos_left_back)
+                if next_left_back != None:
+                    get_possible_pos_left_back(next_left_back)
+
+
+def get_possible_pos_right_back(pos_right_back):
+    global possibles_position
+    if pos_right_back != None and verify_pos(pos_right_back):
+            possibles_position.append(pos_right_back)
+            if board[pos_to_move[0]][pos_to_move[1]] == 'D'+player_option["piece_option"][1]:
+                next_right_back = get_right_back_pos(pos_right_back)
+                if next_right_back != None:
+                    get_possible_pos_right(next_right_back)
 
 
 def verify_pos(pos):
@@ -387,15 +455,16 @@ def get_mandatory_moves(pos):
     pos_right = get_right_pos(pos)
     pos_left_back = get_left_back_pos(pos)
     pos_right_back = get_right_back_pos(pos)
-
+        
     if pos_left != None and board[pos_left[0]][pos_left[1]] not in possible_pos:
         next_left = get_left_pos(pos_left)
         if next_left != None and board[next_left[0]][next_left[1]] == '  ' and pos_left not in jump_pieces:
+            jump_pieces.append(pos_left)
             if pos != pos_to_move and (pos[0],pos[1]) in number_pos:
                 number_pos[(next_left[0],next_left[1])] = number_pos[(pos[0],pos[1])] + 1
             else:
                 number_pos[(next_left[0],next_left[1])] = 1
-            
+
             if (pos[0],pos[1]) in passed_history:
                 aux = passed_history[(pos[0],pos[1])]
                 aux.append(next_left)
@@ -406,6 +475,14 @@ def get_mandatory_moves(pos):
             get_mandatory_moves(next_left)
     elif pos_left != None and board[pos_left[0]][pos_left[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_left not in possibles_position:
         mandatory_position.append(pos_left)
+    elif pos_left != None and board[pos_left[0]][pos_left[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
+        if (pos[0],pos[1]) in passed_history:
+                aux = passed_history[(pos[0],pos[1])]
+                aux.append(pos_left)
+                passed_history[(pos[0],pos[1])] = aux
+        else:
+            passed_history[(pos[0],pos[1])] = [pos_left]
+        get_mandatory_moves(pos_left)
 
     if pos_right != None and board[pos_right[0]][pos_right[1]] not in possible_pos:
         next_right = get_right_pos(pos_right)
@@ -426,6 +503,14 @@ def get_mandatory_moves(pos):
             get_mandatory_moves(next_right)
     elif pos_right != None and board[pos_right[0]][pos_right[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_right not in possibles_position:
         mandatory_position.append(pos_right)
+    elif pos_right != None and board[pos_right[0]][pos_right[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
+        if (pos[0],pos[1]) in passed_history:
+                aux = passed_history[(pos[0],pos[1])]
+                aux.append(pos_right)
+                passed_history[(pos[0],pos[1])] = aux
+        else:
+            passed_history[(pos[0],pos[1])] = [pos_right]
+        get_mandatory_moves(pos_right)
 
     if pos_left_back != None and board[pos_left_back[0]][pos_left_back[1]] not in possible_pos and board[pos_left_back[0]][pos_left_back[1]] not in mandatory_position:
         next_left_back = get_left_back_pos(pos_left_back)
@@ -444,7 +529,15 @@ def get_mandatory_moves(pos):
                 passed_history[(pos[0],pos[1])] = [next_left_back]
 
             get_mandatory_moves(next_left_back)
-    
+    elif pos_left_back != None and board[pos_left_back[0]][pos_left_back[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
+        if (pos[0],pos[1]) in passed_history:
+                aux = passed_history[(pos[0],pos[1])]
+                aux.append(pos_left_back)
+                passed_history[(pos[0],pos[1])] = aux
+        else:
+                passed_history[(pos[0],pos[1])] = [pos_left_back]
+        get_mandatory_moves(pos_left_back)
+  
     if pos_right_back != None and board[pos_right_back[0]][pos_right_back[1]] not in possible_pos :
         next_right_back = get_right_back_pos(pos_right_back)
         if next_right_back != None and board[next_right_back[0]][next_right_back[1]] == '  ' and pos_right_back not in jump_pieces:
@@ -462,7 +555,15 @@ def get_mandatory_moves(pos):
                 passed_history[(pos[0],pos[1])] = [next_right_back]
 
             get_mandatory_moves(next_right_back)
-            
+    elif pos_right_back != None and board[pos_right_back[0]][pos_right_back[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
+        if (pos[0],pos[1]) in passed_history:
+                aux = passed_history[(pos[0],pos[1])]
+                aux.append(pos_right_back)
+                passed_history[(pos[0],pos[1])] = aux
+        else:
+            passed_history[(pos[0],pos[1])] = [pos_right_back]
+        get_mandatory_moves(pos_right_back)
+  
 
 def get_right_pos(pos):
     y = pos[0]
@@ -506,7 +607,6 @@ def get_final_target_list():
     global will_eat
 
     get_mandatory_list()
-
     if mandatory_position == []:
         will_eat = False
         return
@@ -537,7 +637,6 @@ def verify_position_in_board(y,x):
 def get_mandatory_list():
     global number_pos
     global mandatory_position
-
     max = 0
     for idx in number_pos:
         if number_pos[idx] > max:
