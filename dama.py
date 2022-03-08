@@ -259,15 +259,14 @@ def get_all_mandatory():
     for idx2 in number_pos_origin_pos:
         if number_pos_origin_pos[idx2] == max:
             madatory_pos_origin_pos.append([idx2[0], idx2[1]])
-
-    #number_pos_origin_pos.clear()
-    #madatory_pos_origin_pos.clear()
-    #jump_pieces.clear()
             
 
 def get_positions():
     global cannot_continue
     global pos_to_move
+    global number_pos
+    global jump_pieces
+    global number_pos_origin_pos
     
     get_all_mandatory()
     while cannot_continue:
@@ -275,8 +274,10 @@ def get_positions():
         verify_origin_positions(origin_pos)
         verify_piece_owner(origin_pos)
         pos_to_move = origin_pos
+        number_pos_origin_pos.clear()
+        madatory_pos_origin_pos.clear()
+        jump_pieces.clear()
         get_moves(origin_pos)
-
 
     get_final_target_list()
     cannot_continue = True
