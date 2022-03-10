@@ -229,10 +229,6 @@ def get_all_mandatory():
     global number_pos_origin_pos
     global madatory_pos_origin_pos
     global pos_to_move
-
-    number_pos_origin_pos.clear()
-    madatory_pos_origin_pos.clear()
-    jump_pieces.clear()
     
     max_per_pos = 0
     for idx_y,y in enumerate(board):
@@ -259,7 +255,7 @@ def get_all_mandatory():
             max = number_pos_origin_pos[idx]
     
     for idx2 in number_pos_origin_pos:
-        if number_pos_origin_pos[idx2] == max:
+        if number_pos_origin_pos[idx2] == max and number_pos_origin_pos[idx2] > 0:
             madatory_pos_origin_pos.append([idx2[0], idx2[1]])
             
 
@@ -269,6 +265,7 @@ def get_positions():
     global number_pos
     global jump_pieces
     global number_pos_origin_pos
+    global possibles_position
     
     get_all_mandatory()
     while cannot_continue:
@@ -279,6 +276,7 @@ def get_positions():
         number_pos_origin_pos.clear()
         madatory_pos_origin_pos.clear()
         jump_pieces.clear()
+        possibles_position.clear()
         get_moves(origin_pos)
 
     get_final_target_list()
@@ -297,7 +295,7 @@ def get_positions():
 def verify_origin_positions(position):
     global cannot_continue
 
-    if board[position[0]][position[1]] != player_option["piece_option"]:
+    if board[position[0]][position[1]][1] != player_option["piece_option"][1]:
         print("Posição Inválida!")
         cannot_continue = True
         return
@@ -553,7 +551,7 @@ def get_mandatory_moves(pos):
                 passed_history[(pos[0],pos[1])] = [next_left_back]
 
             get_mandatory_moves(next_left_back)
-    elif pos_left_back != None and board[pos_left_back[0]][pos_left_back[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
+    elif pos_left_back != None and pos_left_back in possibles_position and board[pos[0]][pos[1]] == possible_pos[1]:
         if (pos[0],pos[1]) in passed_history:
                 aux = passed_history[(pos[0],pos[1])]
                 aux.append(pos_left_back)
@@ -747,23 +745,23 @@ def start_shift():
     global madatory_pos_origin_pos
     global final_poss_pos
 
-    possibles_position.clear()
-    mandatory_position.clear()
-    pos_to_move.clear()
-    number_pos.clear()
-    all_mandatory.clear()
-    jump_pieces.clear()
-    passed_history.clear()
-    path_to_eat.clear()
-    number_pos_origin_pos.clear()
-    madatory_pos_origin_pos.clear()
-    final_poss_pos.clear()
-    
     global player_playing
     round = 0
     options = ["PB", "PP"]
     original_player_option = player_option["piece_option"]
     while True:
+        possibles_position.clear()
+        mandatory_position.clear()
+        pos_to_move.clear()
+        number_pos.clear()
+        all_mandatory.clear()
+        jump_pieces.clear()
+        passed_history.clear()
+        path_to_eat.clear()
+        number_pos_origin_pos.clear()
+        madatory_pos_origin_pos.clear()
+        final_poss_pos.clear()
+    
         score_pb,score_pp = get_number_pieces_board()
         if score_pb <= 0:
             print("########################")
