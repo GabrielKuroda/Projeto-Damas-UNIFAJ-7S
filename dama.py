@@ -727,17 +727,31 @@ def switch_positions_letters(position):
 def start_shift():
     
     global player_playing
+    round = 0
     options = ["PB", "PP"]
     original_player_option = player_option["piece_option"]
     while True:
         score_pb,score_pp = get_number_pieces_board()
-        if score_pb == 0:
-            print("PP ganhou")
+        if score_pb <= 0:
+            print("########################")
+            print("### Jogo finalizado! ###")
+            print("###     PP ganhou    ###")
+            print("########################")
             break
-        if score_pp == 0:
-            print("PB ganhou")
+        elif score_pp <= 0:
+            print("########################")
+            print("### Jogo finalizado! ###")
+            print("###     PB ganhou    ###")
+            print("########################")
+            break
+        elif round >= 10:
+            print("########################")
+            print("### Jogo finalizado! ###")
+            print("###     Empatou      ###")
+            print("########################")
             break
 
+        round +=0.5
         print(f"Player {player_playing} faça sua jogada")
         print("-----------------------------------------")
 
