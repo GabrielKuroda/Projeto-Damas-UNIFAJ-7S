@@ -14,6 +14,7 @@ will_eat = False
 end_path = False
 number_pos_origin_pos = {}
 madatory_pos_origin_pos = []
+final_poss_pos = []
 
 
 def initial_position(player_choice):
@@ -117,12 +118,12 @@ def move_piece():
             board[target_pos[0]][target_pos[1]] = p
 
     if will_eat:
-        eat_piece()
+        eat_piece(target_pos)
 
     print_board()
 
 
-def eat_piece():
+def eat_piece(target_pos):
     global path_to_eat
     if len(path_to_eat) >=2: 
         pos1 = path_to_eat[0]
@@ -131,11 +132,12 @@ def eat_piece():
         y_to_eat = int((pos1[0] + pos2[0])/2)
         x_to_eat = int((pos1[1] + pos2[1])/2)
         
-        board[y_to_eat][x_to_eat] = '  '
+        if target_pos != [y_to_eat,x_to_eat] and board[y_to_eat][x_to_eat] != player_option["piece_option"]:
+            board[y_to_eat][x_to_eat] = '  '
         
         path_to_eat.remove(pos1)
 
-        eat_piece()
+        eat_piece(target_pos)
 
 
 def get_path(target_pos):
@@ -227,10 +229,6 @@ def get_all_mandatory():
     global number_pos_origin_pos
     global madatory_pos_origin_pos
     global pos_to_move
-
-    number_pos_origin_pos.clear()
-    madatory_pos_origin_pos.clear()
-    jump_pieces.clear()
     
     max_per_pos = 0
     for idx_y,y in enumerate(board):
@@ -257,7 +255,7 @@ def get_all_mandatory():
             max = number_pos_origin_pos[idx]
     
     for idx2 in number_pos_origin_pos:
-        if number_pos_origin_pos[idx2] == max:
+        if number_pos_origin_pos[idx2] == max and number_pos_origin_pos[idx2] > 0:
             madatory_pos_origin_pos.append([idx2[0], idx2[1]])
             
 
@@ -267,6 +265,7 @@ def get_positions():
     global number_pos
     global jump_pieces
     global number_pos_origin_pos
+    global possibles_position
     
     get_all_mandatory()
     while cannot_continue:
@@ -277,11 +276,12 @@ def get_positions():
         number_pos_origin_pos.clear()
         madatory_pos_origin_pos.clear()
         jump_pieces.clear()
+        possibles_position.clear()
         get_moves(origin_pos)
 
     get_final_target_list()
     cannot_continue = True
-    print("Possiveis movimentos -> ", get_positions_formated(possibles_position))
+    print("Possiveis movimentos -> ", get_positions_formated(final_poss_pos))
     while cannot_continue:    
         target_pos = get_positions_index(input("Digite a posição para onde deseja movimentar (Ex: 1A) : ").upper())
         verify_chosen_positions(target_pos)
@@ -294,6 +294,13 @@ def get_positions():
 
 def verify_origin_positions(position):
     global cannot_continue
+
+    if board[position[0]][position[1]][1] != player_option["piece_option"][1]:
+        print("Posição Inválida!")
+        cannot_continue = True
+        return
+    else:
+        cannot_continue = False
 
     if madatory_pos_origin_pos != []:
         if position in madatory_pos_origin_pos:
@@ -348,7 +355,7 @@ def verify_piece_owner(origin_pos):
 def verify_possibles_moves(target_pos):
     global cannot_continue
 
-    for pos in possibles_position:
+    for pos in final_poss_pos:
         if pos == target_pos and pos != None:
             cannot_continue= False
             break
@@ -544,7 +551,7 @@ def get_mandatory_moves(pos):
                 passed_history[(pos[0],pos[1])] = [next_left_back]
 
             get_mandatory_moves(next_left_back)
-    elif pos_left_back != None and board[pos_left_back[0]][pos_left_back[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
+    elif pos_left_back != None and pos_left_back in possibles_position and board[pos[0]][pos[1]] == possible_pos[1]:
         if (pos[0],pos[1]) in passed_history:
                 aux = passed_history[(pos[0],pos[1])]
                 aux.append(pos_left_back)
@@ -619,15 +626,16 @@ def get_left_back_pos(pos):
 def get_final_target_list():
     global mandatory_position
     global possibles_position
+    global final_poss_pos
     global will_eat
-
 
     get_mandatory_list()
     if mandatory_position == []:
+        final_poss_pos = possibles_position
         will_eat = False
         return
     else:
-        possibles_position = mandatory_position
+        final_poss_pos = mandatory_position
         will_eat = True
         return
 
@@ -725,12 +733,35 @@ def switch_positions_letters(position):
 
 
 def start_shift():
-    
+    global possibles_position
+    global mandatory_position
+    global pos_to_move
+    global number_pos
+    global all_mandatory
+    global jump_pieces
+    global passed_history
+    global path_to_eat
+    global number_pos_origin_pos
+    global madatory_pos_origin_pos
+    global final_poss_pos
+
     global player_playing
     round = 0
     options = ["PB", "PP"]
     original_player_option = player_option["piece_option"]
     while True:
+        possibles_position.clear()
+        mandatory_position.clear()
+        pos_to_move.clear()
+        number_pos.clear()
+        all_mandatory.clear()
+        jump_pieces.clear()
+        passed_history.clear()
+        path_to_eat.clear()
+        number_pos_origin_pos.clear()
+        madatory_pos_origin_pos.clear()
+        final_poss_pos.clear()
+    
         score_pb,score_pp = get_number_pieces_board()
         if score_pb <= 0:
             print("########################")
