@@ -131,7 +131,6 @@ def eat_piece(target_pos):
 
         y_to_eat = int((pos1[0] + pos2[0])/2)
         x_to_eat = int((pos1[1] + pos2[1])/2)
-        
         if target_pos != [y_to_eat,x_to_eat] and board[y_to_eat][x_to_eat] != player_option["piece_option"]:
             board[y_to_eat][x_to_eat] = '  '
         
@@ -498,13 +497,37 @@ def get_mandatory_moves(pos):
     elif pos_left != None and board[pos_left[0]][pos_left[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_left not in possibles_position:
         mandatory_position.append(pos_left)
     elif pos_left != None and board[pos_left[0]][pos_left[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
-        if (pos[0],pos[1]) in passed_history:
-                aux = passed_history[(pos[0],pos[1])]
-                aux.append(pos_left)
-                passed_history[(pos[0],pos[1])] = aux
-        else:
-            passed_history[(pos[0],pos[1])] = [pos_left]
-        get_mandatory_moves(pos_left)
+        x = pos_left[0]
+        y = pos_left[1]
+        eat_pieces = 0
+        while True:
+            new_pos = [x,y]
+            next_left_pos = get_left_pos(new_pos)
+            if next_left_pos != None:
+                if board[next_left_pos[0]][next_left_pos[1]] not in possible_pos:
+                    next_left_after_piece = get_left_pos(next_left_pos)
+                    if next_left_after_piece == None:
+                        break
+                    if board[next_left_after_piece[0]][next_left_after_piece[1]] != board[next_left_pos[0]][next_left_pos[1]]:
+                        if (pos[0],pos[1]) in passed_history:
+                            aux = passed_history[(pos[0],pos[1])]
+                            aux.append(new_pos)
+                            passed_history[(pos[0],pos[1])] = aux
+                        else:
+                            passed_history[(pos[0],pos[1])] = [new_pos]
+
+                        if next_left_after_piece != None and board[next_left_after_piece[0]][next_left_after_piece[1]] == '  ':
+                            passed_history[(new_pos[0],new_pos[1])] = [next_left_after_piece]
+                     
+                        eat_pieces = eat_pieces + 1
+
+                        number_pos[(next_left_after_piece[0],next_left_after_piece[1])] = eat_pieces
+                    else:
+                        break
+            x = x-1
+            y = y-1
+            if x < 0 or y <0:
+                break
 
     if pos_right != None and board[pos_right[0]][pos_right[1]] not in possible_pos:
         next_right = get_right_pos(pos_right)
@@ -526,13 +549,37 @@ def get_mandatory_moves(pos):
     elif pos_right != None and board[pos_right[0]][pos_right[1]] == '  ' and board[pos[0]][pos[1]] != '  ' and pos_right not in possibles_position:
         mandatory_position.append(pos_right)
     elif pos_right != None and board[pos_right[0]][pos_right[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
-        if (pos[0],pos[1]) in passed_history:
-                aux = passed_history[(pos[0],pos[1])]
-                aux.append(pos_right)
-                passed_history[(pos[0],pos[1])] = aux
-        else:
-            passed_history[(pos[0],pos[1])] = [pos_right]
-        get_mandatory_moves(pos_right)
+        x = pos_right[0]
+        y = pos_right[1]
+        eat_pieces = 0
+        while True:
+            new_pos = [x,y]
+            next_right_pos = get_right_pos(new_pos)
+            if next_right_pos != None:
+                if board[next_right_pos[0]][next_right_pos[1]] not in possible_pos:
+                    next_right_after_piece = get_right_pos(next_right_pos)
+                    if next_right_after_piece == None:
+                        break
+                    if board[next_right_after_piece[0]][next_right_after_piece[1]] != board[next_right_pos[0]][next_right_pos[1]]:
+                        if (pos[0],pos[1]) in passed_history:
+                            aux = passed_history[(pos[0],pos[1])]
+                            aux.append(new_pos)
+                            passed_history[(pos[0],pos[1])] = aux
+                        else:
+                            passed_history[(pos[0],pos[1])] = [new_pos]
+
+                        if next_right_after_piece != None and board[next_right_after_piece[0]][next_right_after_piece[1]] == '  ':
+                            passed_history[(new_pos[0],new_pos[1])] = [next_right_after_piece]
+                     
+                        eat_pieces = eat_pieces + 1
+
+                        number_pos[(next_right_after_piece[0],next_right_after_piece[1])] = eat_pieces
+                    else:
+                        break
+            x = x-1
+            y = y+1
+            if x < 0 or y > 7:
+                break
 
     if pos_left_back != None and board[pos_left_back[0]][pos_left_back[1]] not in possible_pos and board[pos_left_back[0]][pos_left_back[1]] not in mandatory_position:
         next_left_back = get_left_back_pos(pos_left_back)
@@ -552,13 +599,37 @@ def get_mandatory_moves(pos):
 
             get_mandatory_moves(next_left_back)
     elif pos_left_back != None and pos_left_back in possibles_position and board[pos[0]][pos[1]] == possible_pos[1]:
-        if (pos[0],pos[1]) in passed_history:
-                aux = passed_history[(pos[0],pos[1])]
-                aux.append(pos_left_back)
-                passed_history[(pos[0],pos[1])] = aux
-        else:
-                passed_history[(pos[0],pos[1])] = [pos_left_back]
-        get_mandatory_moves(pos_left_back)
+        x = pos_left_back[0]
+        y = pos_left_back[1]
+        eat_pieces = 0
+        while True:
+            new_pos = [x,y]
+            next_left_back_pos = get_left_back_pos(new_pos)
+            if next_left_back_pos != None:
+                if board[next_left_back_pos[0]][next_left_back_pos[1]] not in possible_pos:
+                    next_left_back_after_piece = get_left_back_pos(next_left_back_pos)
+                    if next_left_back_after_piece == None:
+                        break
+                    if board[next_left_back_after_piece[0]][next_left_back_after_piece[1]] != board[next_left_back_pos[0]][next_left_back_pos[1]]:
+                        if (pos[0],pos[1]) in passed_history:
+                            aux = passed_history[(pos[0],pos[1])]
+                            aux.append(new_pos)
+                            passed_history[(pos[0],pos[1])] = aux
+                        else:
+                            passed_history[(pos[0],pos[1])] = [new_pos]
+
+                        if next_left_back_after_piece != None and board[next_left_back_after_piece[0]][next_left_back_after_piece[1]] == '  ':
+                            passed_history[(new_pos[0],new_pos[1])] = [next_left_back_after_piece]
+                     
+                        eat_pieces = eat_pieces + 1
+
+                        number_pos[(next_left_back_after_piece[0],next_left_back_after_piece[1])] = eat_pieces
+                    else:
+                        break
+            x = x+1
+            y = y-1
+            if x > 7 or y <0:
+                break
   
     if pos_right_back != None and board[pos_right_back[0]][pos_right_back[1]] not in possible_pos :
         next_right_back = get_right_back_pos(pos_right_back)
@@ -578,13 +649,37 @@ def get_mandatory_moves(pos):
 
             get_mandatory_moves(next_right_back)
     elif pos_right_back != None and board[pos_right_back[0]][pos_right_back[1]] == '  ' and board[pos[0]][pos[1]] == possible_pos[1]:
-        if (pos[0],pos[1]) in passed_history:
-                aux = passed_history[(pos[0],pos[1])]
-                aux.append(pos_right_back)
-                passed_history[(pos[0],pos[1])] = aux
-        else:
-            passed_history[(pos[0],pos[1])] = [pos_right_back]
-        get_mandatory_moves(pos_right_back)
+        x = pos_right_back[0]
+        y = pos_right_back[1]
+        eat_pieces = 0
+        while True:
+            new_pos = [x,y]
+            next_right_back_pos = get_right_back_pos(new_pos)
+            if next_right_back_pos != None:
+                if board[next_right_back_pos[0]][next_right_back_pos[1]] not in possible_pos:
+                    next_right_back_after_piece = get_right_back_pos(next_right_back_pos)
+                    if next_right_back_after_piece == None:
+                        break
+                    if board[next_right_back_after_piece[0]][next_right_back_after_piece[1]] != board[next_right_back_pos[0]][next_right_back_pos[1]]:
+                        if (pos[0],pos[1]) in passed_history:
+                            aux = passed_history[(pos[0],pos[1])]
+                            aux.append(new_pos)
+                            passed_history[(pos[0],pos[1])] = aux
+                        else:
+                            passed_history[(pos[0],pos[1])] = [new_pos]
+
+                        if next_right_back_after_piece != None and board[next_right_back_after_piece[0]][next_right_back_after_piece[1]] == '  ':
+                            passed_history[(new_pos[0],new_pos[1])] = [next_right_back_after_piece]
+                     
+                        eat_pieces = eat_pieces + 1
+
+                        number_pos[(next_right_back_after_piece[0],next_right_back_after_piece[1])] = eat_pieces
+                    else:
+                        break
+            x = x+1
+            y = y+1
+            if x > 7 or y > 7:
+                break
   
 
 def get_right_pos(pos):
