@@ -16,7 +16,6 @@ number_pos_origin_pos = {}
 madatory_pos_origin_pos = []
 final_poss_pos = []
 
-
 def initial_position(player_choice):
     other_option = "PB" if player_choice == "PP" else "PP"
 
@@ -148,8 +147,9 @@ def get_path(target_pos):
         for idx_pos,pos in enumerate(passed_history[idx]):
             if pos == target_pos:
                 found_idx = idx
-                                
-                path_to_eat.append(passed_history[idx][idx_pos])
+
+                if passed_history[idx][idx_pos] not in path_to_eat:           
+                    path_to_eat.append(passed_history[idx][idx_pos])
                 passed_history[idx].pop(idx_pos)
                 if passed_history[idx] == []:
                     passed_history.pop(idx)
@@ -158,7 +158,8 @@ def get_path(target_pos):
                 end_path = True
                 break
         if end_path:
-            path_to_eat.append(pos_to_move)
+            if pos_to_move not in path_to_eat:
+                path_to_eat.append(pos_to_move)
             break
         
 
@@ -488,8 +489,9 @@ def get_mandatory_moves(pos):
 
             if (pos[0],pos[1]) in passed_history:
                 aux = passed_history[(pos[0],pos[1])]
-                aux.append(next_left)
-                passed_history[(pos[0],pos[1])] = aux
+                if next_left not in aux:
+                    aux.append(next_left)
+                    passed_history[(pos[0],pos[1])] = aux
             else:
                 passed_history[(pos[0],pos[1])] = [next_left]
 
@@ -511,8 +513,9 @@ def get_mandatory_moves(pos):
                     if board[next_left_after_piece[0]][next_left_after_piece[1]] != board[next_left_pos[0]][next_left_pos[1]]:
                         if (pos[0],pos[1]) in passed_history:
                             aux = passed_history[(pos[0],pos[1])]
-                            aux.append(new_pos)
-                            passed_history[(pos[0],pos[1])] = aux
+                            if new_pos not in aux:
+                                aux.append(new_pos)
+                                passed_history[(pos[0],pos[1])] = aux
                         else:
                             passed_history[(pos[0],pos[1])] = [new_pos]
 
@@ -540,8 +543,9 @@ def get_mandatory_moves(pos):
 
             if (pos[0],pos[1]) in passed_history:
                 aux = passed_history[(pos[0],pos[1])]
-                aux.append(next_right)
-                passed_history[(pos[0],pos[1])] = aux
+                if next_right not in aux:
+                    aux.append(next_right)
+                    passed_history[(pos[0],pos[1])] = aux
             else:
                 passed_history[(pos[0],pos[1])] = [next_right]
 
@@ -563,8 +567,9 @@ def get_mandatory_moves(pos):
                     if board[next_right_after_piece[0]][next_right_after_piece[1]] != board[next_right_pos[0]][next_right_pos[1]]:
                         if (pos[0],pos[1]) in passed_history:
                             aux = passed_history[(pos[0],pos[1])]
-                            aux.append(new_pos)
-                            passed_history[(pos[0],pos[1])] = aux
+                            if new_pos not in aux:
+                                aux.append(new_pos)
+                                passed_history[(pos[0],pos[1])] = aux
                         else:
                             passed_history[(pos[0],pos[1])] = [new_pos]
 
@@ -592,8 +597,9 @@ def get_mandatory_moves(pos):
 
             if (pos[0],pos[1]) in passed_history:
                 aux = passed_history[(pos[0],pos[1])]
-                aux.append(next_left_back)
-                passed_history[(pos[0],pos[1])] = aux
+                if next_left_back not in aux:
+                    aux.append(next_left_back)
+                    passed_history[(pos[0],pos[1])] = aux
             else:
                 passed_history[(pos[0],pos[1])] = [next_left_back]
 
@@ -613,8 +619,9 @@ def get_mandatory_moves(pos):
                     if board[next_left_back_after_piece[0]][next_left_back_after_piece[1]] != board[next_left_back_pos[0]][next_left_back_pos[1]]:
                         if (pos[0],pos[1]) in passed_history:
                             aux = passed_history[(pos[0],pos[1])]
-                            aux.append(new_pos)
-                            passed_history[(pos[0],pos[1])] = aux
+                            if new_pos not in aux:
+                                aux.append(new_pos)
+                                passed_history[(pos[0],pos[1])] = aux
                         else:
                             passed_history[(pos[0],pos[1])] = [new_pos]
 
@@ -642,8 +649,9 @@ def get_mandatory_moves(pos):
                 
             if (pos[0],pos[1]) in passed_history:
                 aux = passed_history[(pos[0],pos[1])]
-                aux.append(next_right_back)
-                passed_history[(pos[0],pos[1])] = aux
+                if next_right_back not in aux:
+                    aux.append(next_right_back)
+                    passed_history[(pos[0],pos[1])] = aux
             else:
                 passed_history[(pos[0],pos[1])] = [next_right_back]
 
@@ -663,8 +671,9 @@ def get_mandatory_moves(pos):
                     if board[next_right_back_after_piece[0]][next_right_back_after_piece[1]] != board[next_right_back_pos[0]][next_right_back_pos[1]]:
                         if (pos[0],pos[1]) in passed_history:
                             aux = passed_history[(pos[0],pos[1])]
-                            aux.append(new_pos)
-                            passed_history[(pos[0],pos[1])] = aux
+                            if new_pos not in aux:
+                                aux.append(new_pos)
+                                passed_history[(pos[0],pos[1])] = aux
                         else:
                             passed_history[(pos[0],pos[1])] = [new_pos]
 
