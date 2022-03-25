@@ -124,7 +124,6 @@ def move_piece():
 
 def eat_piece(target_pos):
     global path_to_eat
-    print(path_to_eat)
     if len(path_to_eat) >=2: 
         pos1 = path_to_eat[0]
         pos2 = path_to_eat[1]
@@ -144,8 +143,6 @@ def get_path(target_pos):
     global path_to_eat
     global end_path
     found_idx = None
-    if pos_to_move not in path_to_eat:
-        path_to_eat.append(pos_to_move)
     for idx in dict(reversed(list(passed_history.items()))):
         for idx_pos,pos in enumerate(passed_history[idx]):
             if pos == target_pos:
@@ -161,6 +158,8 @@ def get_path(target_pos):
                 end_path = True
                 break
         if end_path:
+            if pos_to_move not in path_to_eat:
+                path_to_eat.append(pos_to_move)
             break
         
 
@@ -234,7 +233,7 @@ def get_all_mandatory():
     max_per_pos = 0
     for idx_y,y in enumerate(board):
         for idx_x,x in enumerate(y):
-            if board[idx_y][idx_x] == player_option["piece_option"]:
+            if board[idx_y][idx_x][1] == player_option["piece_option"][1]:
                 possibles_position.clear()
                 mandatory_position.clear()
                 number_pos.clear()
@@ -258,7 +257,29 @@ def get_all_mandatory():
     for idx2 in number_pos_origin_pos:
         if number_pos_origin_pos[idx2] == max and number_pos_origin_pos[idx2] > 0:
             madatory_pos_origin_pos.append([idx2[0], idx2[1]])
-            
+
+    if mandatory_position == []:
+        for idx3 in number_pos_origin_pos:
+            right = get_right_pos(idx3)
+            left = get_left_pos(idx3)
+            if right != None and board[right[0]][right[1]] != '  ':
+                right = None
+            if left != None and board[left[0]][left[1]] != '  ':
+                left = None
+            if right != None or left != None:
+                madatory_pos_origin_pos.append([idx3[0], idx3[1]])
+
+            if board[idx3[0]][idx3[1]][0] == 'D':
+                right_back = get_right_back_pos(idx3)
+                left_back = get_left_back_pos(idx3)
+                if right_back != None and board[right_back[0]][right_back[1]] != '  ':
+                    right_back = None
+                if left_back != None and board[left_back[0]][left_back[1]] != '  ':
+                    left_back = None
+                if right_back != None or left_back != None:
+                    madatory_pos_origin_pos.append([idx3[0], idx3[1]])
+           
+
 
 def get_positions():
     global cannot_continue
@@ -269,6 +290,7 @@ def get_positions():
     global possibles_position
     
     get_all_mandatory()
+    print("Peças que pode mover -> ", get_positions_formated(madatory_pos_origin_pos))
     while cannot_continue:
         origin_pos = get_positions_index(input("Digite a posição da peça que deseja movimentar (Ex: 1A) : ").upper())
         verify_origin_positions(origin_pos)
@@ -289,7 +311,6 @@ def get_positions():
         verify_possibles_moves(target_pos)
 
     get_path(target_pos)
-    path_to_eat.append(target_pos)
     cannot_continue = True
     return origin_pos, target_pos
 
@@ -304,7 +325,7 @@ def verify_origin_positions(position):
     else:
         cannot_continue = False
 
-    if madatory_pos_origin_pos != []:
+    if madatory_pos_origin_pos != {}:
         if position in madatory_pos_origin_pos:
             cannot_continue = False
         else:
@@ -736,7 +757,6 @@ def get_final_target_list():
     global will_eat
 
     get_mandatory_list()
-
     if mandatory_position == []:
         final_poss_pos = possibles_position
         will_eat = False
@@ -910,6 +930,7 @@ def main():
     player_otion = get_player_option()
     print(player_otion)
     initial_position(player_otion["piece_option"])
+    board[2][2] = 'DB'
     print_board()
     if '2' in player_option["vs_option"]:
         start_shift()
