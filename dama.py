@@ -280,8 +280,6 @@ def get_positions():
         possibles_position.clear()
         get_moves(origin_pos)
 
-    print(number_pos)
-    print(passed_history)
     get_final_target_list()
     cannot_continue = True
     print("Possiveis movimentos -> ", get_positions_formated(final_poss_pos))
@@ -738,6 +736,7 @@ def get_final_target_list():
     global will_eat
 
     get_mandatory_list()
+
     if mandatory_position == []:
         final_poss_pos = possibles_position
         will_eat = False
@@ -910,14 +909,7 @@ def start_shift():
 def main():
     player_otion = get_player_option()
     print(player_otion)
-    #initial_position(player_otion["piece_option"])
-    board[6][2] = "PP"
-    board[5][3] = "PB"
-    board[3][3] = "PB"
-    board[3][5] = "PB"
-    board[1][5] = "PB"
-    board[1][3] = "PB"
-    board[1][1] = "PB"
+    initial_position(player_otion["piece_option"])
     print_board()
     if '2' in player_option["vs_option"]:
         start_shift()
