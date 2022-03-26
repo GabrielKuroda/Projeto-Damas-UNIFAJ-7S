@@ -1,3 +1,5 @@
+import random
+
 board = [['  ' for i in range(8)] for i in range(8)]
 cannot_continue = True
 player_option={}
@@ -143,6 +145,8 @@ def get_path(target_pos):
     global path_to_eat
     global end_path
     found_idx = None
+    if pos_to_move not in path_to_eat:
+        path_to_eat.append(pos_to_move)
     for idx in dict(reversed(list(passed_history.items()))):
         for idx_pos,pos in enumerate(passed_history[idx]):
             if pos == target_pos:
@@ -229,7 +233,7 @@ def get_all_mandatory():
     global number_pos_origin_pos
     global madatory_pos_origin_pos
     global pos_to_move
-    
+
     max_per_pos = 0
     for idx_y,y in enumerate(board):
         for idx_x,x in enumerate(y):
@@ -254,6 +258,8 @@ def get_all_mandatory():
         if number_pos_origin_pos[idx] > max:
             max = number_pos_origin_pos[idx]
     
+    mandatory_position.clear()
+
     for idx2 in number_pos_origin_pos:
         if number_pos_origin_pos[idx2] == max and number_pos_origin_pos[idx2] > 0:
             madatory_pos_origin_pos.append([idx2[0], idx2[1]])
@@ -280,7 +286,6 @@ def get_all_mandatory():
                     madatory_pos_origin_pos.append([idx3[0], idx3[1]])
            
 
-
 def get_positions():
     global cannot_continue
     global pos_to_move
@@ -290,9 +295,18 @@ def get_positions():
     global possibles_position
     
     get_all_mandatory()
-    print("Peças que pode mover -> ", get_positions_formated(madatory_pos_origin_pos))
     while cannot_continue:
-        origin_pos = get_positions_index(input("Digite a posição da peça que deseja movimentar (Ex: 1A) : ").upper())
+        if player_option["vs_option"] == '2':
+            print("Peças que pode mover -> ", get_positions_formated(madatory_pos_origin_pos))
+            origin_pos = get_positions_index(input("Digite a posição da peça que deseja movimentar (Ex: 1A) : ").upper())
+        else:
+            if player_playing == 1:
+                print("Peças que pode mover -> ", get_positions_formated(madatory_pos_origin_pos))
+                origin_pos = get_positions_index(input("Digite a posição da peça que deseja movimentar (Ex: 1A) : ").upper())
+            else:
+                idx = random.sample(range(len(madatory_pos_origin_pos)), k=1)
+                origin_pos = madatory_pos_origin_pos[idx[0]]
+                print("O Computador escolheu -> ",  get_positions_formated([origin_pos]))
         verify_origin_positions(origin_pos)
         verify_piece_owner(origin_pos)
         pos_to_move = origin_pos
@@ -304,14 +318,25 @@ def get_positions():
 
     get_final_target_list()
     cannot_continue = True
-    print("Possiveis movimentos -> ", get_positions_formated(final_poss_pos))
     while cannot_continue:    
-        target_pos = get_positions_index(input("Digite a posição para onde deseja movimentar (Ex: 1A) : ").upper())
+        if player_option["vs_option"] == '2':
+            print("Possiveis movimentos -> ", get_positions_formated(final_poss_pos))
+            target_pos = get_positions_index(input("Digite a posição para onde deseja movimentar (Ex: 1A) : ").upper())
+        else:
+            if player_playing == 1:
+                print("Possiveis movimentos -> ", get_positions_formated(final_poss_pos))
+                target_pos = get_positions_index(input("Digite a posição para onde deseja movimentar (Ex: 1A) : ").upper())
+            else:
+                idx = random.sample(range(len(final_poss_pos)), k=1)
+                target_pos = final_poss_pos[idx[0]]
+                print("O Computador moveu para -> ",  get_positions_formated([target_pos]))
         verify_chosen_positions(target_pos)
         verify_possibles_moves(target_pos)
 
     get_path(target_pos)
+    path_to_eat.append(target_pos)
     cannot_continue = True
+
     return origin_pos, target_pos
 
 
@@ -325,7 +350,7 @@ def verify_origin_positions(position):
     else:
         cannot_continue = False
 
-    if madatory_pos_origin_pos != {}:
+    if madatory_pos_origin_pos != []:
         if position in madatory_pos_origin_pos:
             cannot_continue = False
         else:
@@ -930,10 +955,8 @@ def main():
     player_otion = get_player_option()
     print(player_otion)
     initial_position(player_otion["piece_option"])
-    board[2][2] = 'DB'
     print_board()
-    if '2' in player_option["vs_option"]:
-        start_shift()
+    start_shift()
 
 
 main()
