@@ -574,6 +574,16 @@ def get_mandatory_moves(pos):
 
                         number_pos[(next_left_after_piece[0],next_left_after_piece[1])] = eat_pieces
                     else:
+                        if next_left_pos in passed_history[list(passed_history)[-1]]:
+                            x_next = next_left_pos[0]
+                            y_next = next_left_pos[1]
+                            while True:
+                                x_next = x_next-1
+                                y_next = y_next-1
+                                if x_next < 0 or y_next <0:
+                                    break
+                                passed_history[(x_next+1,y_next+1)] = [[x_next,y_next]]
+                                number_pos[(x_next,y_next)] = number_pos[list(number_pos)[-1]]
                         break
             x = x-1
             y = y-1
@@ -628,6 +638,17 @@ def get_mandatory_moves(pos):
 
                         number_pos[(next_right_after_piece[0],next_right_after_piece[1])] = eat_pieces
                     else:
+                        if next_right_pos in passed_history[list(passed_history)[-1]]:
+                            x_next = next_right_pos[0]
+                            y_next = next_right_pos[1]
+                            while True:
+                                x_next = x_next-1
+                                y_next = y_next+1
+                                if x_next < 0 or y_next > 7:
+                                    break
+                                passed_history[(x_next+1,y_next-1)] = [[x_next,y_next]]
+                                number_pos[(x_next,y_next)] = number_pos[list(number_pos)[-1]]
+                                print(passed_history)
                         break
             x = x-1
             y = y+1
@@ -680,6 +701,16 @@ def get_mandatory_moves(pos):
 
                         number_pos[(next_left_back_after_piece[0],next_left_back_after_piece[1])] = eat_pieces
                     else:
+                        if next_left_back_pos in passed_history[list(passed_history)[-1]]:
+                            x_next = next_left_back_pos[0]
+                            y_next = next_left_back_pos[1]
+                            while True:
+                                x_next = x_next+1
+                                y_next = y_next-1
+                                if x_next > 7 or y_next <0:
+                                    break
+                                passed_history[(x_next-1,y_next+1)] = [[x_next,y_next]]
+                                number_pos[(x_next,y_next)] = number_pos[list(number_pos)[-1]]
                         break
             x = x+1
             y = y-1
@@ -732,6 +763,16 @@ def get_mandatory_moves(pos):
 
                         number_pos[(next_right_back_after_piece[0],next_right_back_after_piece[1])] = eat_pieces
                     else:
+                        if next_right_back_pos in passed_history[list(passed_history)[-1]]:
+                            x_next = next_right_back_pos[0]
+                            y_next = next_right_back_pos[1]
+                            while True:
+                                x_next = x_next+1
+                                y_next = y_next+1
+                                if x_next > 7 or y_next > 7:
+                                    break
+                                passed_history[(x_next-1,y_next-1)] = [[x_next,y_next]]
+                                number_pos[(x_next,y_next)] = number_pos[list(number_pos)[-1]]
                         break
             x = x+1
             y = y+1
